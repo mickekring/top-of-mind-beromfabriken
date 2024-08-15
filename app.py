@@ -182,7 +182,7 @@ def main():
     with topcol1:
         # Title
         st.markdown("""
-            # BERÖMDRÖMMEN
+            # DRÖMFABRIKEN
             Tryck på knappen __Spela in__ här under och ge ditt beröm till din kollega. När du är 
             klar trycker du på __Stoppa__. Vänta tills ditt tal gjorts om till text och 
             välj sedan en mall för beröm.
