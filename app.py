@@ -1,6 +1,6 @@
 
 ### Berömdrömmen
-app_version = "0.1.1"
+app_version = "0.1.2"
 ### Author: Micke Kring
 ### Contact: mikael.kring@ri.se
 
@@ -190,45 +190,7 @@ def main():
         
     with topcol2:
 
-        st.link_button("Ge feedback", "https://forms.office.com/e/MWb69j7Be2")
-
-        print()
-
-        #with st.expander("Inställningar", expanded=False):
-            #st.markdown("##### Inställningar")
-
-        #    llm_model = st.selectbox(
-        #        'Välj språkmodell', 
-        #        ["GPT-4o", "LLaMa3 70B", "LLaMa3 8B"],
-        #        index=["GPT-4o", "LLaMa3 70B", "LLaMa3 8B"].index(st.session_state["llm_chat_model"]),
-        #    )
-
-        #    llm_temp = st.slider(
-        #        'Temperatur',
-        #        min_value = 0.0,
-        #        max_value = 1.0,
-        #        step = 0.1,
-        #        value = st.session_state["llm_temperature"],
-        #    )
-
-            # Update the session_state directly
-        #    st.session_state["llm_chat_model"] = llm_model
-        #    st.session_state["llm_temperature"] = llm_temp
-            
-        #    model_map = {
-        #        "GPT-4o": "gpt-4o",
-        #        "LLaMa3 8B": "llama3-8b-8192", 
-        #        "LLaMa3 70B": "llama3-70b-8192"
-        #    }
-
-        #create_an_image = st.toggle("Skapa bild till den bearbetade texten")
-
-            #st.button("Rensa", type="primary")
-            #if st.button("Rensa"):
-            #    st.session_state["file_name_converted"] = None
-            #    gpt_template = "Välj mall"
-
-    
+        st.link_button("Ge feedback", "https://forms.office.com/e/MWb69j7Be2")  
 
 
     maincol1, maincol2 = st.columns([2, 2], gap="large")
@@ -237,120 +199,54 @@ def main():
     with maincol1:
 
         st.markdown("### Beröm din kollega")
-        # CREATE TWO TABS FOR FILE UPLOAD VS RECORDED AUDIO    
-
-        tab1, tab2 = st.tabs(["Spela in", "Ladda upp ljudfil"])
 
 
-        # FILE UPLOADER
+        # Creates the audio recorder
+        audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
 
-        with tab1:
+        # The rest of the code in tab2 works the same way as in tab1, so it's not going to be
+        # commented.
+        if len(audio) > 0:
 
-            # Creates the audio recorder
-            audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
+            # To save audio to a file, use pydub export method
+            audio.export("audio/local_recording.wav", format="wav")
 
-            # The rest of the code in tab2 works the same way as in tab1, so it's not going to be
-            # commented.
-            if len(audio) > 0:
+            # Open the saved audio file and compute its hash
+            with open("audio/local_recording.wav", 'rb') as file:
+                current_file_hash = compute_file_hash(file)
 
-                # To save audio to a file, use pydub export method
-                audio.export("audio/local_recording.wav", format="wav")
-
-                # Open the saved audio file and compute its hash
-                with open("audio/local_recording.wav", 'rb') as file:
-                    current_file_hash = compute_file_hash(file)
-
-                # If the uploaded file hash is different from the one in session state, reset the state
-                if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
-                    st.session_state.file_hash = current_file_hash
-                    
-                    if "transcribed" in st.session_state:
-                        del st.session_state.transcribed
-
-                if "transcribed" not in st.session_state:
+            # If the uploaded file hash is different from the one in session state, reset the state
+            if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
+                st.session_state.file_hash = current_file_hash
                 
-                    with st.spinner('Din ljudfil är lite stor. Jag ska bara komprimera den lite först...'):
-                        st.session_state.file_name_converted = convert_to_mono_and_compress("audio/local_recording.wav", "local_recording.wav")
-                        st.success('Inspelning komprimerad och klar. Startar transkribering.')
+                if "transcribed" in st.session_state:
+                    del st.session_state.transcribed
 
-                    with st.spinner('Transkriberar. Det här kan ta ett litet tag beroende på hur lång inspelningen är...'):
-                        st.session_state.transcribed = transcribe_with_whisper_openai(st.session_state.file_name_converted, 
-                            "local_recording.mp3",
-                            model_map_spoken_language[st.session_state["spoken_language"]]
-                            )
-
-                        st.success('Transkribering klar.')
-
-                        st.balloons()
-
-                local_recording_name = "local_recording.mp3"
-                #document = Document()
-                #document.add_paragraph(st.session_state.transcribed)
-
-                #document.save('text/' + local_recording_name + '.docx')
-
-                #with open("text/local_recording.mp3.docx", "rb") as template_file:
-                #    template_byte = template_file.read()
-                
-                st.markdown("### Ditt beröm")
-                
-                if st.session_state.file_name_converted is not None:
-                    st.audio(st.session_state.file_name_converted, format='audio/wav')
-                
-                st.write(st.session_state.transcribed)
-
-
-        
-        # AUDIO RECORDER ###### ###### ######
-
-        with tab2:
+            if "transcribed" not in st.session_state:
             
-            uploaded_file = st.file_uploader(
-                "Ladda upp din ljud- eller videofil här",
-                type=["mp3", "wav", "flac", "mp4", "m4a", "aifc"],
-                help="Max 10GB stora filer", label_visibility="collapsed",
-                )
+                with st.spinner('Din ljudfil är lite stor. Jag ska bara komprimera den lite först...'):
+                    st.session_state.file_name_converted = convert_to_mono_and_compress("audio/local_recording.wav", "local_recording.wav")
+                    st.success('Inspelning komprimerad och klar. Startar transkribering.')
 
+                with st.spinner('Transkriberar. Det här kan ta ett litet tag beroende på hur lång inspelningen är...'):
+                    st.session_state.transcribed = transcribe_with_whisper_openai(st.session_state.file_name_converted, 
+                        "local_recording.mp3",
+                        model_map_spoken_language[st.session_state["spoken_language"]]
+                        )
 
-            if uploaded_file:
+                    st.success('Transkribering klar.')
 
-                # Checks if uploaded file has already been transcribed
-                current_file_hash = compute_file_hash(uploaded_file)
+                    st.balloons()
 
-                # If the uploaded file hash is different from the one in session state, reset the state
-                if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
-                    st.session_state.file_hash = current_file_hash
-                    
-                    if "transcribed" in st.session_state:
-                        del st.session_state.transcribed
-
-                
-                # If audio has not been transcribed
-                if "transcribed" not in st.session_state:
-
-                    # Sends audio to be converted to mp3 and compressed
-                    with st.spinner('Din ljudfil är lite stor. Jag ska bara komprimera den lite först...'):
-                        st.session_state.file_name_converted = convert_to_mono_and_compress(uploaded_file, uploaded_file.name)
-                        st.success('Inspelning komprimerad och klar. Startar transkribering.')
-
-                # Transcribes audio with Whisper
-                    with st.spinner('Transkriberar. Det här kan ta ett litet tag beroende på hur lång inspelningen är...'):
-                        st.session_state.transcribed = transcribe_with_whisper_openai(st.session_state.file_name_converted, 
-                            uploaded_file.name,
-                            model_map_spoken_language[st.session_state["spoken_language"]])
-                        st.success('Transkribering klar.')
-
-                        st.balloons()
-
-                
-                st.markdown("### Ladda upp ditt beröm")
-                
-                if st.session_state.file_name_converted is not None:
-                    st.audio(st.session_state.file_name_converted, format='audio/wav')
-                
-                st.write(st.session_state.transcribed)
-
+            local_recording_name = "local_recording.mp3"
             
+            st.markdown("### Ditt beröm")
+            
+            if st.session_state.file_name_converted is not None:
+                st.audio(st.session_state.file_name_converted, format='audio/wav')
+            
+            st.write(st.session_state.transcribed)
+
 
 
     with maincol2:
