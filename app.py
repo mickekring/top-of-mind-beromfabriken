@@ -1,6 +1,6 @@
 
 ### Berömdrömmen
-app_version = "0.1.2"
+app_version = "0.1.3"
 ### Author: Micke Kring
 ### Contact: mikael.kring@ri.se
 
@@ -146,28 +146,28 @@ def main():
 
     ###### SIDEBAR SETTINGS
 
-    st.sidebar.header("Inställningar")
-    st.sidebar.markdown("")
+    #st.sidebar.header("Inställningar")
+    #st.sidebar.markdown("")
 
     # Dropdown menu - choose source language of audio
-    spoken_language = st.sidebar.selectbox(
-            "Välj språk som talas", 
-            ["Automatiskt", "Svenska", "Engelska", "Franska", "Tyska", "Spanska"],
-            index=["Automatiskt", "Svenska", "Engelska", "Franska", "Tyska", "Spanska"].index(st.session_state["spoken_language"]),
-        )
+    #spoken_language = st.sidebar.selectbox(
+    #        "Välj språk som talas", 
+    #        ["Automatiskt", "Svenska", "Engelska", "Franska", "Tyska", "Spanska"],
+    #        index=["Automatiskt", "Svenska", "Engelska", "Franska", "Tyska", "Spanska"].index(st.session_state["spoken_language"]),
+    #    )
 
-    model_map_spoken_language = {
-            "Automatiskt": None,
-            "Svenska": "sv",
-            "Engelska": "en",
-            "Franska": "fr",
-            "Tyska": "de",
-            "Spanska": "sp"
+    #model_map_spoken_language = {
+    #        "Automatiskt": None,
+    #        "Svenska": "sv",
+    #        "Engelska": "en",
+    #        "Franska": "fr",
+    #        "Tyska": "de",
+    #        "Spanska": "sp"
 
-        }
+    #    }
 
     # Update the session_state directly
-    st.session_state["spoken_language"] = spoken_language
+    #st.session_state["spoken_language"] = spoken_language
 
     st.sidebar.markdown(
         "#"
@@ -200,7 +200,6 @@ def main():
 
         st.markdown("### Beröm din kollega")
 
-
         # Creates the audio recorder
         audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
 
@@ -230,9 +229,7 @@ def main():
 
                 with st.spinner('Transkriberar. Det här kan ta ett litet tag beroende på hur lång inspelningen är...'):
                     st.session_state.transcribed = transcribe_with_whisper_openai(st.session_state.file_name_converted, 
-                        "local_recording.mp3",
-                        model_map_spoken_language[st.session_state["spoken_language"]]
-                        )
+                        "local_recording.mp3")
 
                     st.success('Transkribering klar.')
 
