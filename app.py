@@ -1,6 +1,6 @@
 
 ### Berömdrömmen
-app_version = "0.1.4"
+app_version = "0.1.5"
 ### Author: Micke Kring
 ### Contact: mikael.kring@ri.se
 
@@ -100,7 +100,7 @@ def compute_file_hash(uploaded_file):
 
 # Page configuration
 st.set_page_config(
-    page_title="Drömfabriken",
+    page_title="Berömfabriken",
     layout="wide",
     page_icon="❤️",
     initial_sidebar_state="collapsed")
@@ -211,7 +211,7 @@ def main():
     with topcol1:
         # Title
         st.markdown("""
-            # DRÖMFABRIKEN
+            # BERÖMFABRIKEN
             Tryck på knappen __Spela in__ här under och ge ditt beröm till din kollega. När du är 
             klar trycker du på __Stoppa__. Vänta tills ditt tal gjorts om till text och 
             välj sedan en mall för beröm.
