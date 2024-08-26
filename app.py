@@ -1,6 +1,6 @@
 
 ### Berömdrömmen
-app_version = "0.1.5"
+app_version = "0.1.6"
 ### Author: Micke Kring
 ### Contact: mikael.kring@ri.se
 
