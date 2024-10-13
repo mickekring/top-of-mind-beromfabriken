@@ -6,7 +6,6 @@ from os import environ
 import config as c
 
 
-
 def process_text(model, temp, system_prompt, text):
 
     if c.run_mode == "local":
@@ -42,7 +41,6 @@ def process_text(model, temp, system_prompt, text):
         return full_response
 
 
-
 def process_text_openai(model, temp, system_prompt, text):
 
     if c.run_mode == "local":
@@ -70,29 +68,3 @@ def process_text_openai(model, temp, system_prompt, text):
                     
             message_placeholder.markdown(full_response)
             return full_response
-
-
-
-def process_text_openai_image_prompt(model, temp, system_prompt, text):
-
-    if c.run_mode == "local":
-        client = OpenAI(api_key = st.secrets.openai_key)
-    else:
-        client = OpenAI(api_key = environ.get("openai_key"))
-
-    message_placeholder = st.empty()
-    full_response = ""
-
-    for response in client.chat.completions.create(
-        model=model,
-        temperature=temp,
-        messages=[
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": text}
-        ],
-        stream=True,
-        ):
-            if response.choices[0].delta.content:
-                full_response += str(response.choices[0].delta.content)
-
-    return full_response

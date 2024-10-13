@@ -4,18 +4,7 @@ import streamlit as st
 from os import environ
 import config as c
 
-if c.run_mode == "local":
-    voice_api_key = st.secrets.elevenlabs_key
-else:
-    voice_api_key = environ.get("elevenlabs_key")
-
-text = """Ah, behold the elusive Homo sapiens in their natural habitat: the corporate 
-meeting room. Here, we witness a fascinating display of social grooming, where the alpha 
-speaker pontificates on the essence of "psychological safety." Yes, dear viewers, 
-it's all about feeling warm and fuzzy inside while navigating the treacherous waters of 
-office politics.
-"""
-
+voice_api_key = st.secrets.elevenlabs_key
 
 def text_to_speech(text, voice, stability, similarity_boost):
 

@@ -1,29 +1,32 @@
 
 ### Berömdrömmen
-app_version = "0.1.6"
 ### Author: Micke Kring
 ### Contact: mikael.kring@ri.se
 
-
+# Python imports
 import os
 import hmac
 from os import environ
-import streamlit as st
 from datetime import datetime
 from sys import platform
 import hashlib
+from concurrent.futures import ThreadPoolExecutor
+
+# External imports
+import streamlit as st
+from audiorecorder import audiorecorder
 from openai import OpenAI
 
-# Streamlit Audio recorder
-from audiorecorder import audiorecorder
-
-from functions import convert_to_mono_and_compress
+# Local imports
 from transcribe import transcribe_with_whisper_openai
-from llm import process_text, process_text_openai, process_text_openai_image_prompt
+from llm import process_text, process_text_openai
 from voice import text_to_speech
 import prompts as p
-from image import create_image
 from mix_audio import mix_music_and_voice
+import config as c
+from styling import page_configuration, page_styling
+from split_audio import split_audio_to_chunks
+
 
 ### INITIAL VARIABLES
 
@@ -32,32 +35,35 @@ os.makedirs("audio", exist_ok=True) # Where audio/video files are stored for tra
 os.makedirs("text", exist_ok=True) # Where transcribed document are beeing stored
 
 
-def check_password():
-    """Returns `True` if the user had the correct password."""
+### PASSWORD
 
-    def password_entered():
-        """Checks whether a password entered by the user is correct."""
-        if hmac.compare_digest(st.session_state["password"], st.secrets["password"]):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]  # Don't store the password.
-        else:
-            st.session_state["password_correct"] = False
+if c.run_mode != "local":
+    def check_password():
+        """Returns `True` if the user had the correct password."""
 
-    # Return True if the password is validated.
-    if st.session_state.get("password_correct", False):
-        return True
+        def password_entered():
+            """Checks whether a password entered by the user is correct."""
+            if hmac.compare_digest(st.session_state["password"], st.secrets["password"]):
+                st.session_state["password_correct"] = True
+                del st.session_state["password"]  # Don't store the password.
+            else:
+                st.session_state["password_correct"] = False
 
-    # Show input for password.
-    st.text_input(
-        "Lösenord", type="password", on_change=password_entered, key="password"
-    )
-    if "password_correct" in st.session_state:
-        st.error("😕 Oj, fel lösenord. Prova igen.")
-    return False
+        # Return True if the password is validated.
+        if st.session_state.get("password_correct", False):
+            return True
+
+        # Show input for password.
+        st.text_input(
+            "Lösenord", type="password", on_change=password_entered, key="password"
+        )
+        if "password_correct" in st.session_state:
+            st.error("😕 Oj, fel lösenord. Prova igen.")
+        return False
 
 
-if not check_password():
-    st.stop()  # Do not continue if check_password is not True.
+    if not check_password():
+        st.stop()  # Do not continue if check_password is not True.
 
 
 # Check and set default values if not set in session_state
@@ -68,11 +74,11 @@ if "spoken_language" not in st.session_state: # What language source audio is in
 if "file_name_converted" not in st.session_state: # Audio file name
     st.session_state["file_name_converted"] = None
 if "gpt_template" not in st.session_state: # Audio file name
-    st.session_state["gpt_template"] = "Ljus röst 1"
+    st.session_state["gpt_template"] = "Ljus röst - Glad, positiv och svär gärna"
 if "llm_temperature" not in st.session_state:
-    st.session_state["llm_temperature"] = 0.8
+    st.session_state["llm_temperature"] = c.llm_temp
 if "llm_chat_model" not in st.session_state:
-    st.session_state["llm_chat_model"] = "gpt-4o"
+    st.session_state["llm_chat_model"] = c.llm_model
 if "audio_file" not in st.session_state:
     st.session_state["audio_file"] = False
 
@@ -97,72 +103,8 @@ def compute_file_hash(uploaded_file):
 
 ### MAIN APP ###########################
 
-
-# Page configuration
-st.set_page_config(
-    page_title="Berömfabriken",
-    layout="wide",
-    page_icon="❤️",
-    initial_sidebar_state="collapsed")
-
-# CSS styling
-
-st.markdown("""
-<style>
-            
-h1 {
-    padding: 0rem 0px 1rem;
-}
-            
-[alt="user avatar"] {
-    height: 2.8rem;
-    width: 2.8rem;
-    border-radius: 50%;
-}
-            
-[alt="assistant avatar"] {
-    height: 2.8rem;
-    width: 2.8rem;
-    border-radius: 50%;
-}
-            
-[aria-label="Chat message from user"] {
-    background: #ffffff;
-    padding: 10px;
-    border-radius: 0.5rem;
-}
-            
-[aria-label="Chat message from assistant"] {
-    padding: 10px;
-}
-      
-.st-emotion {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    background-color: rgb(255 255 255);
-}
-
-[data-testid="block-container"] {
-    padding-left: 3rem;
-    padding-right: 3rem;
-    padding-top: 0rem;
-    padding-bottom: 0rem;
-    margin-bottom: -7rem;
-}
-            
-.block-container {
-    padding-top: 3rem;
-    padding-bottom: 2rem;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-### ### ### ###
-
+page_configuration()
+page_styling()
 
 
 def main():
@@ -172,31 +114,6 @@ def main():
 
 
     ### SIDEBAR
-
-    ###### SIDEBAR SETTINGS
-
-    #st.sidebar.header("Inställningar")
-    #st.sidebar.markdown("")
-
-    # Dropdown menu - choose source language of audio
-    #spoken_language = st.sidebar.selectbox(
-    #        "Välj språk som talas", 
-    #        ["Automatiskt", "Svenska", "Engelska", "Franska", "Tyska", "Spanska"],
-    #        index=["Automatiskt", "Svenska", "Engelska", "Franska", "Tyska", "Spanska"].index(st.session_state["spoken_language"]),
-    #    )
-
-    #model_map_spoken_language = {
-    #        "Automatiskt": None,
-    #        "Svenska": "sv",
-    #        "Engelska": "en",
-    #        "Franska": "fr",
-    #        "Tyska": "de",
-    #        "Spanska": "sp"
-
-    #    }
-
-    # Update the session_state directly
-    #st.session_state["spoken_language"] = spoken_language
 
     st.sidebar.markdown(
         "#"
@@ -210,16 +127,35 @@ def main():
 
     with topcol1:
         # Title
-        st.markdown("""
-            # BERÖMFABRIKEN
-            Tryck på knappen __Spela in__ här under och ge ditt beröm till din kollega. När du är 
+        st.markdown(f"""## :material/thumb_up: {c.app_name}""")
+        st.markdown("""Tryck på knappen __Spela in__ här under och ge ditt beröm till din kollega. När du är 
             klar trycker du på __Stoppa__. Vänta tills ditt tal gjorts om till text och 
-            välj sedan en mall för beröm.
-            """)
+            välj sedan en mall för beröm.""")
+
         
     with topcol2:
 
-        st.link_button("Ge feedback", "https://forms.office.com/e/MWb69j7Be2")  
+        with st.expander(":material/help: Vill du ha tips?"):
+            st.markdown("""__Att ge beröm till en kollega kan kännas lite pinsamt, men forskning har visat att 
+det kan få oss att må bättre på jobbet och att vi till och med blir mer produktiva. 
+Att få höra att kollegor värdesätter och uppmärksammar en ökar ens välmående helt enkelt.__
+
+Det viktigaste är att det kommer från hjärtat och ett spontant beröm kommer du långt med.
+Men om du vill ha några tips, så försök att vara specifik. Berätta vad det är du tycker din 
+kollega gör så bra och hur det får dig att känna. I stället för att bara säga ‘bra jobbat’, 
+nämn något konkret, som ‘jag uppskattar verkligen att du kan hålla lugnet under press.’ 
+
+Du kan också ge beröm både för prestationer och egenskaper. Du kan berömma hur någon löser 
+ett problem, men även deras samarbetsförmåga, empati eller hur de stöttar andra i teamet.
+
+Kom ihåg att även vara jämställd i hur du ger beröm. Se till att alla får erkännande för 
+sina insatser, oavsett kön, titel eller bakgrund. Det hjälper till att skapa ett mer 
+inkluderande arbetsklimat.
+
+Och till sist, var ärlig. Människor känner av när beröm är genuint. Så när du ser något bra – säg det!
+Att regelbundet ge beröm bygger upp tillit, respekt och en arbetsplats där alla känner sig 
+sedda och uppskattade.
+""")
 
 
     maincol1, maincol2 = st.columns([2, 2], gap="large")
@@ -227,7 +163,7 @@ def main():
 
     with maincol1:
 
-        st.markdown("### Beröm din kollega")
+        st.markdown("#### Beröm din kollega")
 
         # Creates the audio recorder
         audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
@@ -251,33 +187,29 @@ def main():
                     del st.session_state.transcribed
 
             if "transcribed" not in st.session_state:
-            
-                with st.spinner('Din ljudfil är lite stor. Jag ska bara komprimera den lite först...'):
-                    st.session_state.file_name_converted = convert_to_mono_and_compress("audio/local_recording.wav", "local_recording.wav")
-                    st.success('Inspelning komprimerad och klar. Startar transkribering.')
 
-                with st.spinner('Transkriberar. Det här kan ta ett litet tag beroende på hur lång inspelningen är...'):
-                    st.session_state.transcribed = transcribe_with_whisper_openai(st.session_state.file_name_converted, 
-                        "local_recording.mp3")
+                with st.status('Delar upp ljudfilen i mindre bitar...'):
+                    chunk_paths = split_audio_to_chunks("audio/local_recording.wav")
 
-                    st.success('Transkribering klar.')
-
-                    st.balloons()
-
-            local_recording_name = "local_recording.mp3"
+                # Transcribe chunks in parallel
+                with st.status('Transkriberar alla ljudbitar. Det här kan ta ett tag beroende på lång inspelningen är...'):
+                    with ThreadPoolExecutor() as executor:
+                        # Open each chunk as a file object and pass it to transcribe_with_whisper_openai
+                        transcriptions = list(executor.map(
+                            lambda chunk: transcribe_with_whisper_openai(open(chunk, "rb"), os.path.basename(chunk)), 
+                            chunk_paths
+                        )) 
+                        # Combine all the transcriptions into one
+                        st.session_state.transcribed = "\n".join(transcriptions)
             
-            st.markdown("### Ditt beröm")
-            
-            if st.session_state.file_name_converted is not None:
-                st.audio(st.session_state.file_name_converted, format='audio/wav')
-            
+            st.markdown("#### Ditt beröm")
             st.write(st.session_state.transcribed)
 
 
 
     with maincol2:
 
-        st.markdown("### Skapa AI-beröm")
+        st.markdown("#### Skapa AI-beröm")
 
         if "transcribed" in st.session_state:
 
@@ -286,30 +218,30 @@ def main():
             gpt_template = st.selectbox(
                 "Välj mall", 
                 ["Välj mall", 
-                 "Ljus röst 1",
-                 "Ljus röst 2",
-                 "Djup röst 1",
-                 "Djup röst 2"
+                 "Ljus röst - Glad, positiv och svär gärna",
+                 "Ljus röst - Korrekt myndighetsperson",
+                 "Djup röst - Fåordig men glad och rolig",
+                 "Djup röst - Skojfrisk och svärande"
 
                  ],
                 index=[
-                 "Ljus röst 1",
-                 "Ljus röst 2",
-                 "Djup röst 1",
-                 "Djup röst 2"
+                 "Ljus röst - Glad, positiv och svär gärna",
+                 "Ljus röst - Korrekt myndighetsperson",
+                 "Djup röst - Fåordig men glad och rolig",
+                 "Djup röst - Skojfrisk och svärande"
                 ].index(st.session_state["gpt_template"]),
             )
 
-            if gpt_template == "Ljus röst 1":
+            if gpt_template == "Ljus röst - Glad, positiv och svär gärna":
                 system_prompt = p.ljus_rost_1
             
-            elif gpt_template == "Ljus röst 2":
+            elif gpt_template == "Ljus röst - Korrekt myndighetsperson":
                 system_prompt = p.ljus_rost_2
             
-            elif gpt_template == "Djup röst 1":
+            elif gpt_template == "Djup röst - Fåordig men glad och rolig":
                 system_prompt = p.djup_rost_1
 
-            elif gpt_template == "Djup röst 2":
+            elif gpt_template == "Djup röst - Skojfrisk och svärande":
                 system_prompt = p.djup_rost_2
 
 
@@ -327,7 +259,7 @@ def main():
                 else:
                     full_response = process_text_openai(llm_model, llm_temp, system_prompt, st.session_state.transcribed)
                 
-                if gpt_template == "Ljus röst 1": # Sanna uppåt
+                if gpt_template == "Ljus röst - Glad, positiv och svär gärna": # Sanna uppåt
 
                     voice = "4xkUqaR9MYOJHoaC1Nak"
                     stability = 0.3
@@ -340,7 +272,7 @@ def main():
                             mix_music_and_voice("low")
                             st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
                 
-                elif gpt_template == "Ljus röst 2": # Sanna
+                elif gpt_template == "Ljus röst - Korrekt myndighetsperson": # Sanna
 
                     voice = "aSLKtNoVBZlxQEMsnGL2"
                     stability = 0.5
@@ -353,7 +285,7 @@ def main():
                             mix_music_and_voice("low")
                             st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
 
-                elif gpt_template == "Djup röst 1": # Jonas
+                elif gpt_template == "Djup röst - Fåordig men glad och rolig": # Jonas
 
                     voice = "e6OiUVixGLmvtdn2GJYE"
                     stability = 0.71
@@ -366,7 +298,7 @@ def main():
                             mix_music_and_voice("high")
                             st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
 
-                elif gpt_template == "Djup röst 2": # Dave
+                elif gpt_template == "Djup röst - Skojfrisk och svärande": # Dave
 
                     voice = "m8oYKlEB8ecBLgKRMcwy"
                     stability = 0.5
@@ -381,27 +313,6 @@ def main():
                 
                 else:
                     pass
-
-                #save_as_word(full_response)
-
-                #with open("static/output.docx", "rb") as template_file:
-                #    template_byte = template_file.read()
-                
-                #st.download_button(
-                #    label = "Ladda ned wordfil",
-                #    data = template_byte,
-                #    file_name = "static/output.docx",
-                #    mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                #)
-                
-                #if create_an_image:
-                #    with st.container(border = True):
-                #        with st.spinner(text="Skapar en bild..."):
-                #            image_system_prompt = p.image_prompt
-                #            image_prompt = process_text_openai_image_prompt(llm_model, 0.9, image_system_prompt, full_response)
-                            
-                #            created_image = create_image(image_prompt)
-                #            st.image(created_image, image_prompt)
                 
 
 if __name__ == "__main__":

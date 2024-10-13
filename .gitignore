@@ -2,7 +2,11 @@
 .DS_Store
 .streamlit/secrets.toml
 /__pycache__
-/audio
+/audio/*.wav
+/audio/*.mp3
+/audio_chunks/*.mp3
 /static
-/text
+/text/loc*
+/text/out*
 /Dockerfile
+
