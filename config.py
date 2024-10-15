@@ -7,8 +7,8 @@
 
 run_mode = "local" 
 
-app_name = "Berömdrömmen"
-app_version = "0.2.0"
+app_name = "Berömfabriken"
+app_version = "0.2.1"
 app_updated = "2024-10-13"
 
 llm_model = "gpt-4o"

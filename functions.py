@@ -1,7 +1,6 @@
 
 ### Functions
 
-
 import streamlit as st
 from pydub import AudioSegment
 import os

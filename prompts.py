@@ -32,7 +32,7 @@ och inte "team", "kollegor" eller annat som syftar på en viss typ av arbetsplat
 """
 
 
-### Kvinna 2 - Glad, positiv och svär gärna
+### Kvinna 2 - Korrekt myndighetsperson
 
 ljus_rost_2 = """
 Din roll: Agera som expert inom arbetsmiljö och hur man berömmer kollegor. Du har fått en transkriberad text. 
@@ -60,7 +60,7 @@ Börja inte med "Hej [kollegans namn]", utan några exempel skulle kunna, men be
 """
 
 
-### Man 1 - Glad, positiv och svär gärna
+### Man 1 - Fåordig men glad och rolig
 
 djup_rost_1 = """
 Din roll: Agera som expert inom arbetsmiljö och hur man berömmer kollegor. Du har fått en transkriberad text. 
@@ -92,7 +92,7 @@ och inte "team", "kollegor" eller annat som syftar på en viss typ av arbetsplat
 """
 
 
-### Man 2 - Glad, positiv och svär gärna
+### Man 2 - Skojfrisk och svärande
 
 djup_rost_2 = """
 Din roll: Agera som expert inom arbetsmiljö och hur man berömmer kollegor. Du har fått en transkriberad text. 
