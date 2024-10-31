@@ -162,30 +162,33 @@ sedda och uppskattade.
         st.markdown("#### Beröm din kollega")
 
         # Creates the audio recorder
-        audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
+        #audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
+
+        audio = st.experimental_audio_input("Record a voice message")
 
         # The rest of the code in tab2 works the same way as in tab1, so it's not going to be
         # commented.
-        if len(audio) > 0:
+        #if len(audio) > 0:
+        if audio:
 
             # To save audio to a file, use pydub export method
-            audio.export("data/audio/local_recording.wav", format="wav")
+            #audio.export("data/audio/local_recording.wav", format="wav")
 
             # Open the saved audio file and compute its hash
-            with open("data/audio/local_recording.wav", 'rb') as file:
-                current_file_hash = compute_file_hash(file)
+            #with open("data/audio/local_recording.wav", 'rb') as file:
+            #    current_file_hash = compute_file_hash(file)
 
             # If the uploaded file hash is different from the one in session state, reset the state
-            if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
-                st.session_state.file_hash = current_file_hash
+            #if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
+            #    st.session_state.file_hash = current_file_hash
                 
-                if "transcribed" in st.session_state:
-                    del st.session_state.transcribed
+            #    if "transcribed" in st.session_state:
+            #        del st.session_state.transcribed
 
             if "transcribed" not in st.session_state:
 
                 with st.status('Delar upp ljudfilen i mindre bitar...'):
-                    chunk_paths = split_audio_to_chunks("data/audio/local_recording.wav")
+                    chunk_paths = split_audio_to_chunks(audio)
 
                 # Transcribe chunks in parallel
                 with st.status('Transkriberar alla ljudbitar. Det här kan ta ett tag beroende på lång inspelningen är...'):
