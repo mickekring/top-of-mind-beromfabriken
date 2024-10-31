@@ -1,10 +1,6 @@
-ffmpeg-python
-nltk
-pydub
-python-docx
-streamlit
-openai
-pydub
-markdown
-pypandoc
-requests
+ffmpeg-python >= 0.2.0
+nltk >= 3.9.1
+pydub >= 0.25.1
+streamlit >= 1.39.0
+openai >= 1.52.1
+requests >= 2.32.2
