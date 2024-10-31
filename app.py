@@ -10,7 +10,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 # External imports
 import streamlit as st
-from audiorecorder import audiorecorder
 from openai import OpenAI
 
 # Local imports
@@ -112,7 +111,24 @@ def main():
     ### SIDEBAR
 
     st.sidebar.markdown(
-        "#"
+        f"""# Berömfabriken
+Det här är en av flera prototyper som togs fram till projektet 'Top of Mind: 
+Jämställdhet i industrins vardag.  
+https://www.ri.se/sv/vad-vi-gor/projekt/top-of-mind-jamstalldhet-i-industrins-vardag
+
+---
+
+Micke Kring
+RISE
+
+mikael.kring@ri.se
+
+---
+
+Version: {c.app_version}  
+Uppdaterad: {c.app_updated}
+
+        """
         )
 
 
@@ -124,8 +140,8 @@ def main():
     with topcol1:
         # Title
         st.markdown(f"""## :material/thumb_up: {c.app_name}""")
-        st.markdown("""Tryck på knappen __Spela in__ här under och ge ditt beröm till din kollega. När du är 
-            klar trycker du på __Stoppa__. Vänta tills ditt tal gjorts om till text och 
+        st.markdown("""Klicka på __mikrofonsymbolen__ här under för att spela in ditt beröm till din kollega. När du är 
+            klar trycker du på __stoppsymbolen__. Vänta tills ditt tal gjorts om till text och 
             välj sedan en mall för beröm.""")
 
         
@@ -161,29 +177,17 @@ sedda och uppskattade.
 
         st.markdown("#### Beröm din kollega")
 
-        # Creates the audio recorder
-        #audio = audiorecorder(start_prompt="Spela in", stop_prompt="Stoppa", pause_prompt="", key=None)
+        audio = st.experimental_audio_input("Spela in ett röstmeddelande", label_visibility = "collapsed")
 
-        audio = st.experimental_audio_input("Record a voice message")
-
-        # The rest of the code in tab2 works the same way as in tab1, so it's not going to be
-        # commented.
-        #if len(audio) > 0:
         if audio:
-
-            # To save audio to a file, use pydub export method
-            #audio.export("data/audio/local_recording.wav", format="wav")
-
-            # Open the saved audio file and compute its hash
-            #with open("data/audio/local_recording.wav", 'rb') as file:
-            #    current_file_hash = compute_file_hash(file)
+            current_file_hash = compute_file_hash(audio)
 
             # If the uploaded file hash is different from the one in session state, reset the state
-            #if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
-            #    st.session_state.file_hash = current_file_hash
+            if "file_hash" not in st.session_state or st.session_state.file_hash != current_file_hash:
+                st.session_state.file_hash = current_file_hash
                 
-            #    if "transcribed" in st.session_state:
-            #        del st.session_state.transcribed
+                if "transcribed" in st.session_state:
+                    del st.session_state.transcribed
 
             if "transcribed" not in st.session_state:
 
