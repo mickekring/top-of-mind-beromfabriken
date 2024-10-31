@@ -46,5 +46,11 @@ Installera allt i requirements.txt och kör appen med
 streamlit run app.py
 ```
 
+## Vad får jag göra med koden?
+Du är fri att göra vad du vill med den. Inspireras, koda om, förbättra och sprid vidare... :) 
+
 ## En del av en automatiserad företagsradiokanal
+Lite kuriosa är att denna prototyp skulle vara en del av en automatiserad radiokanal, skapad av AI, som lyfte in externa nyheter om företaget, interna nyheter från intranätet 
+samt spelade musik från en gemensam spotify-lista som all personal kunde bidra till. Tyvärr så fanns det inte möjlighet att göra verklighet av det då projektet inte 
+hada de resurserna.
 
