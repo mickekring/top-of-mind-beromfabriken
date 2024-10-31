@@ -29,7 +29,7 @@ def text_to_speech(text, voice, stability, similarity_boost):
     }
 
     response = requests.post(url, json=data, headers=headers)
-    with open('tts_audio.mp3', 'wb') as f:
+    with open('data/audio/tts_audio.mp3', 'wb') as f:
         for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
             if chunk:
                 f.write(chunk)

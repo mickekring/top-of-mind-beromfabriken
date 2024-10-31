@@ -9,7 +9,7 @@ def mix_music_and_voice(volume_strength):
 
     # Load audio files
     background_music = AudioSegment.from_file("music/music" + str(track) + ".mp3")
-    speaker_voice = AudioSegment.from_file("tts_audio.mp3")
+    speaker_voice = AudioSegment.from_file("data/audio/tts_audio.mp3")
 
     #Adjust the volume of the speaker voice
     if volume_strength == "low":
@@ -37,5 +37,5 @@ def mix_music_and_voice(volume_strength):
     combined = looped_background_music.overlay(speaker_voice)
 
     # Export the mixed audio
-    combined.export("mixed_audio.mp3", format="mp3")
+    combined.export("data/audio/mixed_audio.mp3", format="mp3")
 

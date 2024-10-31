@@ -15,7 +15,7 @@ from openai import OpenAI
 
 # Local imports
 from functions.transcribe import transcribe_with_whisper_openai
-from functions.llm import process_text, process_text_openai
+from functions.llm import process_text_openai
 from functions.voice import text_to_speech
 from functions.mix_audio import mix_music_and_voice
 from functions.split_audio import split_audio_to_chunks
@@ -27,39 +27,39 @@ import config as c
 ### INITIAL VARIABLES
 
 # Creates folder if they don't exist
-os.makedirs("audio", exist_ok=True) # Where audio/video files are stored for transcription
-os.makedirs("text", exist_ok=True) # Where transcribed document are beeing stored
+os.makedirs("data/audio", exist_ok=True) # Where audio/video files are stored for transcription
+os.makedirs("data/audio/audio_chunks", exist_ok=True) # Where audio/video files are stored for transcription
 
+
+st.session_state["pwd_on"] = st.secrets.pwd_on
 
 ### PASSWORD
 
-if c.run_mode != "local":
+if st.session_state["pwd_on"] == "true":
+
     def check_password():
-        """Returns `True` if the user had the correct password."""
+
+        passwd = st.secrets["password"]
 
         def password_entered():
-            """Checks whether a password entered by the user is correct."""
-            if hmac.compare_digest(st.session_state["password"], st.secrets["password"]):
+
+            if hmac.compare_digest(st.session_state["password"], passwd):
                 st.session_state["password_correct"] = True
                 del st.session_state["password"]  # Don't store the password.
             else:
                 st.session_state["password_correct"] = False
 
-        # Return True if the password is validated.
         if st.session_state.get("password_correct", False):
             return True
 
-        # Show input for password.
-        st.text_input(
-            "Lösenord", type="password", on_change=password_entered, key="password"
-        )
+        st.text_input("Lösenord", type="password", on_change=password_entered, key="password")
         if "password_correct" in st.session_state:
-            st.error("😕 Oj, fel lösenord. Prova igen.")
+            st.error("😕 Ooops. Fel lösenord.")
         return False
 
 
     if not check_password():
-        st.stop()  # Do not continue if check_password is not True.
+        st.stop()
 
 
 # Check and set default values if not set in session_state
@@ -169,10 +169,10 @@ sedda och uppskattade.
         if len(audio) > 0:
 
             # To save audio to a file, use pydub export method
-            audio.export("audio/local_recording.wav", format="wav")
+            audio.export("data/audio/local_recording.wav", format="wav")
 
             # Open the saved audio file and compute its hash
-            with open("audio/local_recording.wav", 'rb') as file:
+            with open("data/audio/local_recording.wav", 'rb') as file:
                 current_file_hash = compute_file_hash(file)
 
             # If the uploaded file hash is different from the one in session state, reset the state
@@ -185,7 +185,7 @@ sedda och uppskattade.
             if "transcribed" not in st.session_state:
 
                 with st.status('Delar upp ljudfilen i mindre bitar...'):
-                    chunk_paths = split_audio_to_chunks("audio/local_recording.wav")
+                    chunk_paths = split_audio_to_chunks("data/audio/local_recording.wav")
 
                 # Transcribe chunks in parallel
                 with st.status('Transkriberar alla ljudbitar. Det här kan ta ett tag beroende på lång inspelningen är...'):
@@ -266,7 +266,7 @@ sedda och uppskattade.
 
                     with st.spinner(text="Mixar musik och röst..."):
                             mix_music_and_voice("low")
-                            st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
+                            st.audio("data/audio/mixed_audio.mp3", format="audio/mpeg", loop=False)
                 
                 elif gpt_template == "Ljus röst - Korrekt myndighetsperson": # Sanna
 
@@ -279,7 +279,7 @@ sedda och uppskattade.
 
                     with st.spinner(text="Mixar musik och röst..."):
                             mix_music_and_voice("low")
-                            st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
+                            st.audio("data/audio/mixed_audio.mp3", format="audio/mpeg", loop=False)
 
                 elif gpt_template == "Djup röst - Fåordig men glad och rolig": # Jonas
 
@@ -292,7 +292,7 @@ sedda och uppskattade.
 
                     with st.spinner(text="Mixar musik och röst..."):
                             mix_music_and_voice("high")
-                            st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
+                            st.audio("data/audio/mixed_audio.mp3", format="audio/mpeg", loop=False)
 
                 elif gpt_template == "Djup röst - Skojfrisk och svärande": # Dave
 
@@ -305,7 +305,7 @@ sedda och uppskattade.
 
                     with st.spinner(text="Mixar musik och röst..."):
                             mix_music_and_voice("medium")
-                            st.audio("mixed_audio.mp3", format="audio/mpeg", loop=False)
+                            st.audio("data/audio/mixed_audio.mp3", format="audio/mpeg", loop=False)
                 
                 else:
                     pass
