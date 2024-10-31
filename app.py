@@ -1,8 +1,4 @@
 
-### Berömdrömmen
-### Author: Micke Kring
-### Contact: mikael.kring@ri.se
-
 # Python imports
 import os
 import hmac
@@ -18,14 +14,14 @@ from audiorecorder import audiorecorder
 from openai import OpenAI
 
 # Local imports
-from transcribe import transcribe_with_whisper_openai
-from llm import process_text, process_text_openai
-from voice import text_to_speech
+from functions.transcribe import transcribe_with_whisper_openai
+from functions.llm import process_text, process_text_openai
+from functions.voice import text_to_speech
+from functions.mix_audio import mix_music_and_voice
+from functions.split_audio import split_audio_to_chunks
+from functions.styling import page_configuration, page_styling
 import prompts as p
-from mix_audio import mix_music_and_voice
 import config as c
-from styling import page_configuration, page_styling
-from split_audio import split_audio_to_chunks
 
 
 ### INITIAL VARIABLES
