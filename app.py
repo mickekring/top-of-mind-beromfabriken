@@ -118,7 +118,7 @@ https://www.ri.se/sv/vad-vi-gor/projekt/top-of-mind-jamstalldhet-i-industrins-va
 
 ---
 
-Micke Kring
+Micke Kring  
 RISE
 
 mikael.kring@ri.se
@@ -205,8 +205,9 @@ sedda och uppskattade.
                         # Combine all the transcriptions into one
                         st.session_state.transcribed = "\n".join(transcriptions)
             
-            st.markdown("#### Ditt beröm")
-            st.write(st.session_state.transcribed)
+            with st.container(border = True):
+                st.markdown("#### Ditt beröm")
+                st.write(st.session_state.transcribed)
 
 
 

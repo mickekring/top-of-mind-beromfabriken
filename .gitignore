@@ -3,5 +3,5 @@
 .streamlit/secrets.toml
 /__pycache__
 /data/*
-/Dockerfile
+
 
