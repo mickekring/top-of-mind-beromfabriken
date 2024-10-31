@@ -29,8 +29,8 @@ Du behöver
 - API-nyckel till OpenAI för Whisper och GPT-4o
 - API-nyckel till ElevenLabs för tal
 
-Det här är en Streamlit-app kodad i Python och vill du enkelt sätta upp detta för test kan du följa den installationsguide som jag gjort 
-för en annan app på https://github.com/mickekring/gen-ai-labb
+Det här är en Streamlit-app kodad i Python och vill du enkelt sätta upp detta för test online kan du följa den installationsguide som jag gjort 
+för en annan app på https://github.com/mickekring/gen-ai-labb  
 Skillnaden är att du vid steg 10 måste lägga till API-nyckeln för ElevenLabs. Pwd_on gör sidan lösenordsskyddad med det lösenord du sätter 
 vid password.
 ```
@@ -38,6 +38,12 @@ openai_key = ""
 elevenlabs_key = ""
 pwd_on = "true"
 password = "lösenord123"
+```
+
+Vill du ladda ned och köra appen lokalt, så får du skapa filen /.streamlit/secret.toml och lägga till API-nycklarna ovan i den filen.  
+Installera allt i requirements.txt och kör appen med
+```
+streamlit run app.py
 ```
 
 ## En del av en automatiserad företagsradiokanal
