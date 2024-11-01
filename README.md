@@ -47,7 +47,8 @@ streamlit run app.py
 ```
 
 ## Vad får jag göra med koden?
-Du är fri att göra vad du vill med den. Inspireras, koda om, förbättra och sprid vidare... :) 
+Du är fri att göra vad du vill med den. Inspireras, koda om, förbättra och sprid vidare... :)  
+Du får också ha lite förbarmande av att koden kan vara av sisådär karaktär. Jag är bara en hobbykodare.
 
 ## En del av en automatiserad företagsradiokanal
 Lite kuriosa är att denna prototyp skulle vara en del av en automatiserad radiokanal, skapad av AI, som lyfte in externa nyheter om företaget, interna nyheter från intranätet 
