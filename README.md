@@ -3,8 +3,8 @@ Berömfabriken är av flera prototyper som togs fram inom projektet "Top of Mind
 Projektets sida hittar du på https://www.ri.se/sv/vad-vi-gor/projekt/top-of-mind-jamstalldhet-i-industrins-vardag
 
 ## Bakgrund
-Att ge beröm till en kollega kan kännas lite pinsamt, men forskning har visat att det kan få oss att må bättre på jobbet och 
-att vi till och med blir mer produktiva. Att få höra att kollegor värdesätter och uppmärksammar en ökar ens välmående helt enkelt.
+__Att ge beröm till en kollega kan kännas lite pinsamt, men forskning har visat att det kan få oss att må bättre på jobbet och 
+att vi till och med blir mer produktiva. Att få höra att kollegor värdesätter och uppmärksammar en ökar ens välmående helt enkelt.__
 
 Målet med Berömfabriken är att sänka trösklarna för att ge sina kollegor beröm. Det bästa berömet är givetvis det man ger 
 människa till människa, men det är inte alla som vågar göra det. Det kan också kännas problematiskt att som man ge en kvinna 
