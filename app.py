@@ -304,7 +304,8 @@ sedda och uppskattade.
 
                 elif gpt_template == "Djup röst - Skojfrisk och svärande": # Dave
 
-                    voice = "m8oYKlEB8ecBLgKRMcwy"
+                    #voice = "m8oYKlEB8ecBLgKRMcwy"
+                    voice = "e6OiUVixGLmvtdn2GJYE"
                     stability = 0.5
                     similarity_boost = 0.6
                     
