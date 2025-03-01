@@ -4,7 +4,7 @@
 ### Contact: mikael.kring@ri.se
 
 app_name = "Berömfabriken"
-app_version = "1.0.6"
+app_version = "1.0.7"
 app_updated = "2025-03-01"
 
 llm_model = "gpt-4o"
