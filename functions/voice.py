@@ -4,7 +4,10 @@ import streamlit as st
 from os import environ
 import config as c
 
-voice_api_key = st.secrets.elevenlabs_key
+if c.deployment == "streamlit":
+    voice_api_key = st.secrets.elevenlabs_key
+else:
+    voice_api_key = environ.get("elevenlabs_key")
 
 def text_to_speech(text, voice, stability, similarity_boost):
 
