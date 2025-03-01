@@ -2,8 +2,12 @@
 import streamlit as st
 from openai import OpenAI
 import config as c
+from os import environ
 
-client = OpenAI(api_key = st.secrets.openai_key)
+if c.deployment == "streamlit":
+	client = OpenAI(api_key = st.secrets.openai_key)
+else:
+	client = OpenAI(api_key = environ.get("openai_key"))
 
 # Whisper OpenAI
 

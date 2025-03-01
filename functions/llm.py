@@ -9,7 +9,10 @@ import config as c
 
 def process_text_openai(model, temp, system_prompt, text):
 
-    client = OpenAI(api_key = st.secrets.openai_key)
+    if c.deployment == "streamlit":
+        client = OpenAI(api_key = st.secrets.openai_key)
+    else:
+        client = OpenAI(api_key = environ.get("openai_key"))
     
     with st.container(border = True):
 

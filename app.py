@@ -30,7 +30,10 @@ os.makedirs("data/audio", exist_ok=True) # Where audio/video files are stored fo
 os.makedirs("data/audio/audio_chunks", exist_ok=True) # Where audio/video files are stored for transcription
 
 
-st.session_state["pwd_on"] = st.secrets.pwd_on
+if c.deployment == "streamlit":
+    st.session_state["pwd_on"] = st.secrets.pwd_on
+else:
+    st.session_state["pwd_on"] = environ.get("pwd_on")
 
 ### PASSWORD
 
@@ -38,7 +41,10 @@ if st.session_state["pwd_on"] == "true":
 
     def check_password():
 
-        passwd = st.secrets["password"]
+        if c.deployment == "streamlit":
+            passwd = st.secrets["password"]
+        else:
+            passwd = environ.get("password")
 
         def password_entered():
 
@@ -59,6 +65,8 @@ if st.session_state["pwd_on"] == "true":
 
     if not check_password():
         st.stop()
+
+############
 
 
 # Check and set default values if not set in session_state
@@ -177,7 +185,7 @@ sedda och uppskattade.
 
         st.markdown("#### Beröm din kollega")
 
-        audio = st.experimental_audio_input("Spela in ett röstmeddelande", label_visibility = "collapsed")
+        audio = st.audio_input("Spela in ett röstmeddelande", label_visibility = "collapsed")
 
         if audio:
             current_file_hash = compute_file_hash(audio)
